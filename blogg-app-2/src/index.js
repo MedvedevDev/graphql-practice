@@ -1,4 +1,5 @@
 import { ApolloServer, gql } from "apollo-server";
+import { v4 as uuidv4 } from 'uuid';
 
 const users = [{
         id: 1,
@@ -105,6 +106,10 @@ const typeDefs = gql`
         author: User!
         post: Post!
     }
+    
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int!): User!
+    }
 `
 
 // Resolvers
@@ -125,6 +130,25 @@ const resolvers = {
         comments() {
             return comments;
         },
+    },
+
+    Mutation: {
+        createUser(parent, args, context, info) {
+            const emailTaken = users.some(user => user.email === args.email.toLowerCase().trim())
+
+            if (emailTaken) {
+                throw new Error('Email taken');
+            }
+
+            const user = {
+                id: uuidv4(),
+                name: args.name,
+                email: args.email,
+                age: args.age
+            }
+            users.push(user);
+            return user;
+        }
     },
 
     Post: {
