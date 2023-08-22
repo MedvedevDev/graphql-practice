@@ -1,144 +1,155 @@
 import { ApolloServer, gql } from "apollo-server";
 import { v4 as uuidv4 } from 'uuid';
 
-const users = [{
-        id: 1,
-        name: "String",
-        email:"String",
-        age: 12
-},
-    {
-        id: 2,
-        name: "String",
-        email:"String",
-        age: 11
-    },
-    {
-        id: 3,
-        name: "String 3",
-        email:"String 3",
-        age: 10
-    }
-]
 
-const comments = [
-    {
-        id: 1,
-        comment: "string string",
-        author: 1,
-        post: 1
-    },
-    {
-        id: 2,
-        comment: "string string",
-        author: 2,
-        post: 1
-    },
-    {
-        id: 3,
-        comment: "string string",
-        author: 2,
-        post: 2
-    },
-    {
-        id: 4,
-        comment: "string string",
-        author: 3,
-        post: 3
-    }
-]
+// Demo user data
+const users = [{
+    id: '1',
+    name: 'Andrew',
+    email: 'andrew@example.com',
+    age: 27
+}, {
+    id: '2',
+    name: 'Sarah',
+    email: 'sarah@example.com'
+}, {
+    id: '3',
+    name: 'Mike',
+    email: 'mike@example.com'
+}]
 
 const posts = [{
-    id: 1,
-    title: "2",
-    body: "strng",
+    id: '10',
+    title: 'GraphQL 101',
+    body: 'This is how to use GraphQL...',
+    published: true,
+    author: '1'
+}, {
+    id: '11',
+    title: 'GraphQL 201',
+    body: 'This is an advanced GraphQL post...',
     published: false,
     author: '1'
-},
-    {
-        id: 2,
-        title: "strng 2",
-        body: "strng 2",
-        published: true,
-        author: '1'
-    },
-    {
-        id: 3,
-        title: "2",
-        body: "strng",
-        published: true,
-        author: '2'
-    }
-]
+}, {
+    id: '12',
+    title: 'Programming Music',
+    body: '',
+    published: true,
+    author: '2'
+}]
+
+const comments = [{
+    id: '102',
+    text: 'This worked well for me. Thanks!',
+    author: '3',
+    post: '10'
+}, {
+    id: '103',
+    text: 'Glad you enjoyed it.',
+    author: '1',
+    post: '10'
+}, {
+    id: '104',
+    text: 'This did no work.',
+    author: '2',
+    post: '11'
+}, {
+    id: '105',
+    text: 'Nevermind. I got it to work.',
+    author: '1',
+    post: '11'
+}]
 
 // Type definitions (schema)
-const typeDefs = gql`
+const typeDefs = `
     type Query {
-        add(a: Float!, b: Float!): Float!
-        me: User!
-        post: Post!
-        users: [User!]!
+        users(query: String): [User!]!
         posts(query: String): [Post!]!
         comments: [Comment!]!
-    } 
-    
+        me: User!
+        post: Post!
+    }
+
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int): User!
+        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
+        createComment(text: String!, author: ID!, post: ID!): Comment!
+    }
+
     type User {
         id: ID!
         name: String!
         email: String!
         age: Int
-        posts: [Post]!
-        comments: [Comment]!
+        posts: [Post!]!
+        comments: [Comment!]!
     }
-    
+
     type Post {
         id: ID!
         title: String!
         body: String!
         published: Boolean!
         author: User!
-        comments: [Comment]!
+        comments: [Comment!]!
     }
-    
+
     type Comment {
         id: ID!
-        comment: String!
+        text: String!
         author: User!
         post: Post!
-    }
-    
-    type Mutation {
-        createUser(name: String!, email: String!, age: Int!): User!
-        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
     }
 `
 
 // Resolvers
 const resolvers = {
     Query: {
-        users(parent, {query}, context, info) {
-            return users;
-        },
-
-        posts(parent, {query}, context, info) {
-            if (!query) {
-                return posts;
+        users(parent, args, ctx, info) {
+            if (!args.query) {
+                return users
             }
 
-            return posts.filter(post => post.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
+            return users.filter((user) => {
+                return user.name.toLowerCase().includes(args.query.toLowerCase())
+            })
         },
+        posts(parent, args, ctx, info) {
+            if (!args.query) {
+                return posts
+            }
 
-        comments() {
-            return comments;
+            return posts.filter((post) => {
+                const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase())
+                const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase())
+                return isTitleMatch || isBodyMatch
+            })
         },
+        comments(parent, args, ctx, info) {
+            return comments
+        },
+        me() {
+            return {
+                id: '123098',
+                name: 'Mike',
+                email: 'mike@example.com'
+            }
+        },
+        post() {
+            return {
+                id: '092',
+                title: 'GraphQL 101',
+                body: '',
+                published: false
+            }
+        }
     },
-
     Mutation: {
-        createUser(parent, args, context, info) {
-            const emailTaken = users.some(user => user.email === args.email.toLowerCase().trim())
+        createUser(parent, args, ctx, info) {
+            const emailTaken = users.some((user) => user.email === args.email)
 
             if (emailTaken) {
-                throw new Error('Email taken');
+                throw new Error('Email taken')
             }
 
             const user = {
@@ -147,14 +158,16 @@ const resolvers = {
                 email: args.email,
                 age: args.age
             }
-            users.push(user);
-            return user;
-        },
 
-        createPost(parent, args, context, info) {
-            const userExist = users.some(user => user.id === args.author);
-            if (!userExist) {
-                throw new Error("User not found!")
+            users.push(user)
+
+            return user
+        },
+        createPost(parent, args, ctx, info) {
+            const userExists = users.some((user) => user.id === args.author)
+
+            if (!userExists) {
+                throw new Error('User not found')
             }
 
             const post = {
@@ -165,39 +178,65 @@ const resolvers = {
                 author: args.author
             }
 
-            posts.push(post);
+            posts.push(post)
 
-            return post;
+            return post
+        },
+
+        createComment(parent, args, ctx, info) {
+            const userExists = users.some((user) => user.id === args.author)
+            const postExists = posts.some(post => post.id === args.post && post.published)
+
+            if (!userExists || !postExists) {
+                throw new Error('User or post not found')
+            }
+
+            const comment = {
+                id: uuidv4(),
+                text: args.text,
+                author: args.author,
+                post: args.post
+            };
+
+            comments.push(comment);
+
+            return comment;
         }
     },
-
     Post: {
-        author(parent, args, context, info) {
-            return users.find(user => user.id === Number(parent.author));
+        author(parent, args, ctx, info) {
+            return users.find((user) => {
+                return user.id === parent.author
+            })
         },
-
-        comments(parent, args, context, info) {
-            return comments.filter(comment => comment.post === parent.id);
+        comments(parent, args, ctx, info) {
+            return comments.filter((comment) => {
+                return comment.post === parent.id
+            })
         }
     },
-
-    User: {
-        posts(parent, args, context, info) {
-            return posts.filter(post => Number(post.author) === parent.id);
-        },
-
-        comments(parent, args, context, info) {
-            return comments.filter(comment => Number(comment.author) === parent.id);
-        }
-    },
-
     Comment: {
-        author(parent, args, context, info) {
-            return users.find(user => user.id === Number(parent.author));
+        author(parent, args, ctx, info) {
+            return users.find((user) => {
+                return user.id === parent.author
+            })
         },
-
-        post(parent, args, context, info) {
-            return posts.find(post => post.id === parent.post);
+        post(parent, args, ctx, info) {
+            return posts.find((post) => {
+                return post.id === parent.post
+            })
+        }
+    },
+    User: {
+        posts(parent, args, ctx, info) {
+            return posts.filter((post) => {
+                return post.author === parent.id
+            })
+        },
+        comments(parent, args, ctx, info) {
+            return comments.filter((comment) => {
+                return comment.author === parent.id
+            })
         }
     }
 }
