@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 // Demo user data
-const users = [{
+let users = [{
     id: '1',
     name: 'Andrew',
     email: 'andrew@example.com',
@@ -18,7 +18,7 @@ const users = [{
     email: 'mike@example.com'
 }]
 
-const posts = [{
+let posts = [{
     id: '10',
     title: 'GraphQL 101',
     body: 'This is how to use GraphQL...',
@@ -38,7 +38,7 @@ const posts = [{
     author: '2'
 }]
 
-const comments = [{
+let comments = [{
     id: '102',
     text: 'This worked well for me. Thanks!',
     author: '3',
@@ -72,6 +72,7 @@ const typeDefs = `
 
     type Mutation {
         createUser(data: CreateUserInput): User!
+        deleteUser(id: ID!): User!
         createPost(data: CreatePostInput): Post!
         createComment(data: CreateCommentInput): Comment!
     }
@@ -184,6 +185,35 @@ const resolvers = {
 
             return user;
         },
+
+        deleteUser(parent, args, ctx, info) {
+            const userIndex = users.findIndex(user => user.id === args.id)
+
+            if (userIndex === -1) {
+                throw new Error('User not found')
+            }
+
+            // Delete user by splice method (returns array of deleted elements)
+            const removed = users.splice(userIndex, 1);
+
+            // Delete all associated posts
+            posts = posts.filter(post => {
+                const match = post.author === args.id;
+
+                if (match) {
+                    // Delete comments in the post
+                    comments = comments.filter(comment => comment.post !== post.id);
+                }
+
+                return !match;
+            })
+
+            // Delete all associated comments
+            comments = comments.filter(comment => comment.author !== args.id);
+
+            return removed[0];
+        },
+
         createPost(parent, args, ctx, info) {
             const userExists = users.some((user) => user.id === args.data.author)
 
