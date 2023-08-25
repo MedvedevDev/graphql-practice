@@ -1,0 +1,81 @@
+// Get all users
+query {
+  users {
+    id
+    name
+    posts {
+      title
+    }
+  }
+}
+
+// Get all posts
+query {
+  posts {
+    id
+    title
+    author {
+      id
+      name
+    }
+    comments {
+      text
+    }
+  }
+}
+
+// Create user
+mutation {
+  createUser(data: {
+    name: "string",
+    email: "string",
+    age: 12
+  }) {
+    id
+    name
+    email
+  }
+}
+
+// Create post
+mutation {
+  createPost(data : {
+    title: "string", 
+    body: "string", 
+    published: false, 
+    author: "id"
+  }) {
+    id
+    title
+    body
+    published
+    author {
+      name
+    }
+  }
+}
+
+// Create comment
+mutation {
+  createComment(data: {
+    text: "string",
+    post: "id",
+    author: "id"
+  }) {
+      text
+  }
+}
+
+// Delete user
+mutation {
+  deleteUser(id: "id") {
+    name
+  }
+}
+
+// Delete post
+mutation {
+  deletePost(id: "id") {
+    id
+  }
+}
