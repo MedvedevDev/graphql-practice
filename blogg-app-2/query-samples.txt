@@ -79,3 +79,34 @@ mutation {
     id
   }
 }
+
+// Update user
+mutation {
+  updateUser(id: "1", data: {
+    name: "string",
+    email: "string",
+    age: 0
+  }) {
+    id
+  }
+}
+
+// Update post
+mutation {
+  updatePost(id: "1", data: {
+    title: "string",
+    body: "string",
+    published: false
+  }) {
+    id
+  }
+}
+
+// Update comment
+mutation {
+  updateComment(id: "10", data: {
+    text: "string"
+  }) {
+    id
+  }
+}

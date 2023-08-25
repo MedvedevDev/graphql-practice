@@ -13,9 +13,12 @@
 
         createPost(data: CreatePostInput!): Post!
         deletePost(id: ID!): Post!
+        updatePost(id:ID!, data: UpdatePostInput): Post!
 
         createComment(data: CreateCommentInput!): Comment!
         deleteComment(id: ID!): Comment!
+        updateComment(id:ID!, data: UpdateCommentInput): Post!
+
     }
 
     input CreateUserInput {
@@ -37,10 +40,20 @@
         author: ID!
     }
 
+    input UpdatePostInput {
+        title: String
+        body: String
+        published: Boolean
+    }
+
     input CreateCommentInput {
         text: String!
         author: ID!
         post: ID!
+    }
+
+    input UpdateCommentInput {
+        text: String
     }
 
     type User {
