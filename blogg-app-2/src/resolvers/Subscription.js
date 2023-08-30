@@ -1,4 +1,5 @@
 const Subscription = {
+    //Create comment sub
     comment: {
         subscribe: (parent, { postID }, { pubsub, db }, info) => {
             // Find post
@@ -12,7 +13,12 @@ const Subscription = {
         }
     },
 
-
+    // Create post sub
+    post: {
+        subscribe: (parent,  args, { pubsub }, info) => {
+            return pubsub.asyncIterator('POST_CREATED');
+        }
+    }
 }
 
 export { Subscription as default }

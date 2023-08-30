@@ -83,4 +83,5 @@
 
      type Subscription {
          comment(postID: ID!): Comment!
+         post: Post!
      }

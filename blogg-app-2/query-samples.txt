@@ -110,3 +110,17 @@ mutation {
     id
   }
 }
+
+// Create comment subscription
+subscription {
+  comment(postID: "id") {
+    id
+    text
+    author {
+      id
+      name
+    }
+  }
+}
+
+// Create post subscription
