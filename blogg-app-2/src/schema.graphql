@@ -81,7 +81,17 @@
         post: Post!
     }
 
+     type PostSubscriptionPayload {
+         mutation: String!
+         data: Post!
+     }
+
+     type CommentSubscriptionPayload {
+         mutation: String!
+         data: Comment!
+     }
+
      type Subscription {
-         comment(postID: ID!): Comment!
-         post: Post!
+         comment(postID: ID!): CommentSubscriptionPayload!
+         post: PostSubscriptionPayload!
      }

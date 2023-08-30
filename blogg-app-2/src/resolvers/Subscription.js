@@ -16,7 +16,7 @@ const Subscription = {
     // Create post sub
     post: {
         subscribe: (parent,  args, { pubsub }, info) => {
-            return pubsub.asyncIterator('POST_CREATED');
+            return pubsub.asyncIterator('POST');
         }
     }
 }

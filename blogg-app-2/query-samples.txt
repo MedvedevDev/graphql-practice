@@ -111,16 +111,34 @@ mutation {
   }
 }
 
-// Create comment subscription
+// ------------------------------------------- Subscriptions -------------------------------------------
+
+// Comment subscription
 subscription {
-  comment(postID: "id") {
-    id
-    text
-    author {
-      id
-      name
+  comment(postID: "10") {
+    mutation
+    data {
+        id
+        text
+        author {
+            id
+            name
+        }
     }
   }
 }
 
 // Create post subscription
+subscription {
+  post {
+    mutation
+    data {
+        id
+        title
+        body
+    }
+  }
+}
+
+
+// Update comment subscription
