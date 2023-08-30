@@ -1,7 +1,9 @@
 import {v4 as uuidv4} from "uuid";
+import { PubSub } from "graphql-subscriptions";
+const pubsub = new PubSub();
 
 const Mutation = {
-    createUser(parent, args, { db }, info) {
+    async createUser(parent, args, { db }, info) {
         const emailTaken = db.users.some((user) => user.email === args.data.email)
 
         if (emailTaken) {
@@ -17,6 +19,7 @@ const Mutation = {
         }
 
         db.users.push(user);
+        await pubsub.publish(COUNTED, { counted: user });
 
         return user;
     },
@@ -136,7 +139,7 @@ const Mutation = {
         return deletedPosts[0];
     },
 
-    createComment(parent, args, { db }, info) {
+    createComment(parent, args, { db, pubsub }, info) {
         const userExists = db.users.some((user) => user.id === args.data.author)
         const postExists = db.posts.some(post => post.id === args.data.post && post.published)
 
@@ -150,6 +153,7 @@ const Mutation = {
         };
 
         db.comments.push(comment);
+        pubsub.publish(`COMMENT ${args.data.post}`, { comment }) // Subscription
 
         return comment;
     },

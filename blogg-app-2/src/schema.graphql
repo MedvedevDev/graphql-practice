@@ -80,3 +80,7 @@
         author: User!
         post: Post!
     }
+
+     type Subscription {
+         comment(postID: ID!): Comment!
+     }
