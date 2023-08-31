@@ -128,7 +128,7 @@ subscription {
   }
 }
 
-// Create post subscription
+// Post subscription
 subscription {
   post {
     mutation
@@ -140,5 +140,3 @@ subscription {
   }
 }
 
-
-// Update comment subscription
