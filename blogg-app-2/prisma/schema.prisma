@@ -21,12 +21,12 @@ model Post {
 }
 
 model User {
-  id       String    @id
-  name     String
-  email    String    @unique
-  age      Int
-  posts    Post[]
-  comments Comment[]
+  id      String    @id
+  name    String
+  email   String    @unique
+  age     Int
+  posts   Post[]
+  Comment Comment[]
 }
 
 model Comment {

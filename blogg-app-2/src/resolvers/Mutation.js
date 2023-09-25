@@ -188,12 +188,12 @@ const Mutation = {
     },
 
     async createComment(parent, args, { pubsub, prisma }, info) {
-        const userExists = db.users.some((user) => user.id === args.data.author)
-        const postExists = db.posts.some(post => post.id === args.data.post && post.published)
-
-        if (!userExists || !postExists) {
-            throw new Error('User or post not found')
-        }
+        // const userExists = db.users.some((user) => user.id === args.data.author)
+        // const postExists = db.posts.some(post => post.id === args.data.post && post.published)
+        //
+        // if (!userExists || !postExists) {
+        //     throw new Error('User or post not found')
+        // }
 
         const comment = await prisma.comment.create({
             data: {
