@@ -11,17 +11,17 @@ datasource db {
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
+  id        String    @id
   title     String
   body      String
   published Boolean   @default(false)
-  authorId  Int
+  authorId  String
   author    User      @relation(fields: [authorId], references: [id])
   comments  Comment[]
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
+  id       String    @id
   name     String
   email    String    @unique
   age      Int
@@ -30,10 +30,10 @@ model User {
 }
 
 model Comment {
-  id       Int    @id @default(autoincrement())
+  id       String @id
   text     String
-  authorId Int
+  authorId String
   author   User   @relation(fields: [authorId], references: [id])
-  postId   Int
+  postId   String
   post     Post   @relation(fields: [postId], references: [id])
 }

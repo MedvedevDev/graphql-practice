@@ -3,27 +3,24 @@ import { PubSub } from "graphql-subscriptions";
 const pubsub = new PubSub();
 
 const Mutation = {
-    async createUser(parent, args, { db, prisma }, info) {
+    async createUser(parent, args, { prisma }, info) {
         const emailTaken = db.users.some((user) => user.email === args.data.email)
 
         if (emailTaken) {
             throw new Error('Email taken')
         }
 
-        const user = {
-            id: uuidv4(),
-            // name: args.name,
-            // email: args.email,
-            // age: args.age
-            ...args.data
-        }
-
-        prisma.user.create({
-            data: user
+        const user = await prisma.user.create({
+            data: {
+                id: uuidv4(),
+                // name: args.name,
+                // email: args.email,
+                // age: args.age
+                ...args.data
+            }
         });
 
-        //db.users.push(user);
-        await pubsub.publish(COUNTED, { counted: user });
+        await pubsub.publish('COUNTED', { counted: user });
 
         return user;
     },
@@ -88,19 +85,19 @@ const Mutation = {
         return removed[0];
     },
 
-    createPost(parent, args, { db, pubsub }, info) {
-        const userExists = db.users.some((user) => user.id === args.data.author)
+    async createPost(parent, args, { pubsub, prisma }, info) {
+        //const userExists = db.users.some((user) => user.id === args.data.author)
 
-        if (!userExists) {
-            throw new Error('User not found')
-        }
+        // if (!userExists) {
+        //     throw new Error('User not found')
+        // }
 
-        const post = {
-            id: uuidv4(),
-            ...args.data
-        }
-
-        db.posts.push(post)
+        const post = await prisma.post.create({
+            data: {
+                id: uuidv4(),
+                ...args.data
+            }
+        });
 
         //Add subscription only if post was created with published: true
         if (args.data.published) {
@@ -190,7 +187,7 @@ const Mutation = {
         return deletedPosts[0];
     },
 
-    createComment(parent, args, { db, pubsub }, info) {
+    async createComment(parent, args, { pubsub, prisma }, info) {
         const userExists = db.users.some((user) => user.id === args.data.author)
         const postExists = db.posts.some(post => post.id === args.data.post && post.published)
 
@@ -198,12 +195,12 @@ const Mutation = {
             throw new Error('User or post not found')
         }
 
-        const comment = {
-            id: uuidv4(),
-            ...args.data
-        };
-
-        db.comments.push(comment);
+        const comment = await prisma.comment.create({
+            data: {
+                id: uuidv4(),
+                ...args.data
+            }
+        });
 
         // Subscription
         pubsub.publish(`COMMENT ${args.data.post}`, {
