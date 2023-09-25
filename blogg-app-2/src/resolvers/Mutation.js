@@ -3,7 +3,7 @@ import { PubSub } from "graphql-subscriptions";
 const pubsub = new PubSub();
 
 const Mutation = {
-    async createUser(parent, args, { db }, info) {
+    async createUser(parent, args, { db, prisma }, info) {
         const emailTaken = db.users.some((user) => user.email === args.data.email)
 
         if (emailTaken) {
@@ -18,7 +18,11 @@ const Mutation = {
             ...args.data
         }
 
-        db.users.push(user);
+        prisma.user.create({
+            data: user
+        });
+
+        //db.users.push(user);
         await pubsub.publish(COUNTED, { counted: user });
 
         return user;

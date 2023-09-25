@@ -8,6 +8,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import express from 'express';
 import http from 'http';
+import { PrismaClient } from '@prisma/client'
 
 import fs from 'fs';
 import path from 'path';
@@ -37,12 +38,13 @@ const resolvers = {
     Subscription
 }
 
-
 // Create the schema, which will be used separately by ApolloServer and
 // the WebSocket server.
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 const pubsub = new PubSub();
+
+const prisma = new PrismaClient();
 
 // Create an Express app and HTTP server to attach both the WebSocket
 // server and the ApolloServer to this HTTP server.
@@ -99,7 +101,8 @@ app.use(
     expressMiddleware(server, {
         context: ({ req }) => ({
             db,
-            pubsub
+            pubsub,
+            prisma
         }),
     })
 );
