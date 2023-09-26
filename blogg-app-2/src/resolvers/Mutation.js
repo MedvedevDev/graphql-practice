@@ -4,9 +4,13 @@ const pubsub = new PubSub();
 
 const Mutation = {
     async createUser(parent, args, { prisma }, info) {
-        const emailTaken = db.users.some((user) => user.email === args.data.email)
+        const emailTaken = await prisma.user.findUnique({
+            where: {
+                email: args.data.email
+            }
+        })
 
-        if (emailTaken) {
+        if (!emailTaken) {
             throw new Error('Email taken')
         }
 
@@ -25,8 +29,12 @@ const Mutation = {
         return user;
     },
 
-    updateUser(parent, { id, data }, { db }, info) {
-        const user = db.users.find(user => user.id === id);
+    async updateUser(parent, { id, data }, { prisma }, info) {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: id
+            }
+        })
 
         if (!user) {
             throw new Error("User not found");
@@ -35,23 +43,36 @@ const Mutation = {
         // Update email
         if (typeof data.email === 'string') {
             // Check if email is already taken by another user
-            const emailTaken = db.users.some(user => user.email === data.email);
+            const emailTaken = await prisma.user.findUnique({
+                where: {
+                    email: data.email
+                }
+            })
 
             if (emailTaken) {
                 throw new Error("Email taken");
             }
 
-            user.email = data.email;
+            await prisma.user.update({
+                where: { id: id },
+                data: { email: data.email },
+            })
         }
 
         // Update name
         if (typeof data.name === 'string') {
-            user.name = data.name;
+            await prisma.user.update({
+                where: { id: id },
+                data: { name: data.name },
+            })
         }
 
         // Update age
         if (typeof data.age !== 'undefined') {
-            user.age = data.age;
+            await prisma.user.update({
+                where: { id: id },
+                data: { age: data.age },
+            })
         }
 
         return user;
