@@ -230,12 +230,18 @@ const Mutation = {
     },
 
     async createComment(parent, args, { pubsub, prisma }, info) {
-        // const userExists = db.users.some((user) => user.id === args.data.author)
+        // const userExists = await prisma.user.findUnique({
+        //     where: {
+        //         id: args.data.author
+        //     }
+        // })
         // const postExists = db.posts.some(post => post.id === args.data.post && post.published)
         //
         // if (!userExists || !postExists) {
         //     throw new Error('User or post not found')
-        // }
+        //}
+
+        console.log(args.data)
 
         const comment = await prisma.comment.create({
             data: {
@@ -254,15 +260,22 @@ const Mutation = {
         return comment;
     },
 
-    updateComment(parent, { id, data }, { db, pubsub }, info) {
-        const comment = db.comments.find(cmnt => cmnt.id === id);
+    async updateComment(parent, { id, data }, { prisma, pubsub }, info) {
+        const comment = await prisma.comment.findUnique({
+            where: {
+                id: id
+            }
+        })
 
         if (!comment) {
             throw new Error("Comment not found");
         }
 
         if (typeof data.text === 'string') {
-            comment.text = data.text;
+            await prisma.comment.update({
+                where: { id: id },
+                data: { text: data.text },
+            })
         }
 
         // Sub
