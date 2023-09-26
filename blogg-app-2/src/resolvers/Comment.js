@@ -1,12 +1,17 @@
 const Comment = {
-    author(parent, args, { db }, info) {
-        return db.users.find((user) => {
-            return user.id === parent.author
+    async author(parent, args, { prisma }, info) {
+        return await prisma.user.findUnique({
+            where: {
+                id: parent.authorId
+            }
         })
     },
-    post(parent, args, { db }, info) {
-        return db.posts.find((post) => {
-            return post.id === parent.post
+
+    async post(parent, args, { prisma }, info) {
+        return await prisma.post.findUnique({
+            where: {
+                id: parent.postId
+            }
         })
     }
 }

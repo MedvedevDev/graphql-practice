@@ -28,12 +28,10 @@ query {
 mutation {
   createUser(data: {
     name: "string",
-    email: "string",
-    age: 12
+    email: "string5",
+    age: 11
   }) {
-    id
-    name
-    email
+      id
   }
 }
 
@@ -42,25 +40,23 @@ mutation {
   createPost(data : {
     title: "string", 
     body: "string", 
-    published: false, 
-    author: "id"
+    published: true,
+    authorId: "27b3c1c8-d054-4818-a856-1de3fbd8da87"
   }) {
     id
     title
     body
     published
-    author {
-      name
-    }
+
   }
 }
 
 // Create comment
 mutation {
   createComment(data: {
-    text: "string",
-    post: "id",
-    author: "id"
+    text: "string string commet",
+    authorId: "27b3c1c8-d054-4818-a856-1de3fbd8da87",
+    postId: "0941c28d-80b6-47da-8266-4a9554e00eca",
   }) {
       text
   }
