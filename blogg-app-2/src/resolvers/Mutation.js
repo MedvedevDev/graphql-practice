@@ -107,11 +107,15 @@ const Mutation = {
     },
 
     async createPost(parent, args, { pubsub, prisma }, info) {
-        //const userExists = db.users.some((user) => user.id === args.data.author)
+        const user = await prisma.user.findUnique({
+            where: {
+                id: args.data.authorId
+            }
+        })
 
-        // if (!userExists) {
-        //     throw new Error('User not found')
-        // }
+        if (!user) {
+            throw new Error("User not found");
+        }
 
         const post = await prisma.post.create({
             data: {
@@ -133,24 +137,41 @@ const Mutation = {
         return post;
     },
 
-    updatePost(parent, { id, data }, { db, pubsub }, info) {
-        const post = db.posts.find(post => post.id === id);
+    async updatePost(parent, { id, data }, { pubsub, prisma }, info) {
+        const post = await prisma.post.findUnique({
+            where: {
+                id: id
+            }
+        })
+
         const originalPost = { ...post };
 
         if (!post) {
             throw new Error("Post not found");
         }
 
+        // Update title
         if (typeof data.title === 'string') {
-            post.title = data.title;
+            await prisma.post.update({
+                where: { id: id },
+                data: { title: data.title },
+            })
         }
 
+        // Update body
         if (typeof data.body === 'string') {
-            post.body = data.body;
+            await prisma.post.update({
+                where: { id: id },
+                data: { body: data.body },
+            })
         }
 
+        // Update status
         if (typeof data.published === 'boolean') {
-            post.published = data.published;
+            await prisma.post.update({
+                where: { id: id },
+                data: { published: data.published },
+            })
 
             if (originalPost.published && !post.published)  {
                 // deleted
