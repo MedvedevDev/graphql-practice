@@ -1,4 +1,6 @@
 // Demo user data
+// Not used
+
 let users = [{
     id: '1',
     name: 'Andrew',
